@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { notebooks, reports } from "../drizzle/schema";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -89,4 +90,109 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function createNotebook(
+  userId: number,
+  data: {
+    name: string;
+    description: string;
+    link: string;
+    tags: string[];
+    ogImage?: string | null;
+    ogMetadata?: Record<string, unknown> | null;
+    enhancedDescription?: string | null;
+    suggestedTags?: string[] | null;
+  }
+) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(notebooks).values({
+    userId,
+    name: data.name,
+    description: data.description,
+    link: data.link,
+    tags: data.tags,
+    ogImage: data.ogImage,
+    ogMetadata: data.ogMetadata,
+    enhancedDescription: data.enhancedDescription,
+    suggestedTags: data.suggestedTags,
+  });
+
+  return result;
+}
+
+export async function getAllNotebooks() {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  return await db.select().from(notebooks).orderBy(notebooks.createdAt);
+}
+
+export async function searchNotebooks(query: string) {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  // Simple search by name or tags
+  const allNotebooks = await db.select().from(notebooks);
+  const lowerQuery = query.toLowerCase();
+
+  return allNotebooks.filter(
+    (nb) =>
+      nb.name.toLowerCase().includes(lowerQuery) ||
+      nb.description.toLowerCase().includes(lowerQuery) ||
+      nb.tags.some((tag: string) => tag.toLowerCase().includes(lowerQuery))
+  );
+}
+
+export async function createReport(
+  notebookId: number,
+  userId: number | null,
+  reason: string
+) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return await db.insert(reports).values({
+    notebookId,
+    userId,
+    reason,
+    status: "pending",
+  });
+}
+
+export async function getNotebookById(id: number) {
+  const db = await getDb();
+  if (!db) {
+    return null;
+  }
+
+  const result = await db
+    .select()
+    .from(notebooks)
+    .where(eq(notebooks.id, id))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getReportCount(notebookId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) {
+    return 0;
+  }
+
+  const result = await db
+    .select()
+    .from(reports)
+    .where(eq(reports.notebookId, notebookId));
+
+  return result.length;
+}
