@@ -51,3 +51,9 @@
 - [x] Configure custom email address for notifications (drcjsnider@hotmail.com)
 - [x] Update notification system to use custom email
 - [x] Test email notifications
+
+## Public Submissions (No Login Required)
+- [x] Update submission API to accept public submissions
+- [x] Update submission form UI for public access
+- [x] Add optional submitter name field
+- [x] Test public submission flow

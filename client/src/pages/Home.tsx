@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Loader2, BookOpen, Share2, Search, AlertCircle } from "lucide-react";
+import { Loader2, BookOpen, Share2, Search } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
@@ -18,13 +18,14 @@ export default function Home() {
     description: "",
     link: "",
     tags: "",
+    submitterName: "",
     agreedToLegal: false,
   });
 
   const submitNotebook = trpc.notebooks.submit.useMutation({
     onSuccess: () => {
       toast.success("Notebook submitted successfully!");
-      setFormData({ name: "", description: "", link: "", tags: "", agreedToLegal: false });
+      setFormData({ name: "", description: "", link: "", tags: "", submitterName: "", agreedToLegal: false });
     },
     onError: (error: any) => {
       toast.error(error?.message || "Failed to submit notebook");
@@ -69,6 +70,7 @@ export default function Home() {
       description: formData.description,
       link: formData.link,
       tags: tagsArray,
+      submitterName: formData.submitterName || undefined,
     });
   };
 
@@ -113,21 +115,19 @@ export default function Home() {
                   Explore Gallery
                 </a>
               </Button>
-              {isAuthenticated && (
-                <Button size="lg" variant="outline" className="gap-2" asChild>
-                  <a href="#submit">
-                    <Share2 className="h-5 w-5" />
-                    Share Your Notebook
-                  </a>
-                </Button>
-              )}
+              <Button size="lg" variant="outline" className="gap-2" asChild>
+                <a href="#submit">
+                  <Share2 className="h-5 w-5" />
+                  Share Your Notebook
+                </a>
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="py-12 md:py-16">
+      <section className="py-12 md:py-16" id="submit">
         <div className="container max-w-4xl">
           <div className="grid md:grid-cols-3 gap-8">
             {/* Submission Form */}
@@ -140,110 +140,116 @@ export default function Home() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {!isAuthenticated ? (
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground mb-4">
-                        Please sign in to submit your notebook
-                      </p>
-                      <Button asChild>
-                        <a href={getLoginUrl()}>Sign In to Submit</a>
-                      </Button>
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Name Field */}
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Notebook Name *</Label>
+                      <Input
+                        id="name"
+                        placeholder="e.g., AI Ethics Deep Dive"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        disabled={submitNotebook.isPending}
+                      />
                     </div>
-                  ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      {/* Name Field */}
+
+                    {/* Description Field */}
+                    <div className="space-y-2">
+                      <Label htmlFor="description">
+                        Description ({formData.description.length}/250) *
+                      </Label>
+                      <Textarea
+                        id="description"
+                        placeholder="Describe your notebook in up to 250 characters..."
+                        value={formData.description}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            description: e.target.value.slice(0, 250),
+                          })
+                        }
+                        disabled={submitNotebook.isPending}
+                        rows={4}
+                      />
+                    </div>
+
+                    {/* Link Field */}
+                    <div className="space-y-2">
+                      <Label htmlFor="link">Notebook Link *</Label>
+                      <Input
+                        id="link"
+                        type="url"
+                        placeholder="https://notebooklm.google.com/..."
+                        value={formData.link}
+                        onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                        disabled={submitNotebook.isPending}
+                      />
+                    </div>
+
+                    {/* Tags Field */}
+                    <div className="space-y-2">
+                      <Label htmlFor="tags">Tags</Label>
+                      <Input
+                        id="tags"
+                        placeholder="e.g., AI, Ethics, Research (comma-separated)"
+                        value={formData.tags}
+                        onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                        disabled={submitNotebook.isPending}
+                      />
+                    </div>
+
+                    {/* Submitter Name Field (only for non-authenticated users) */}
+                    {!isAuthenticated && (
                       <div className="space-y-2">
-                        <Label htmlFor="name">Notebook Name *</Label>
+                        <Label htmlFor="submitterName">Your Name (Optional)</Label>
                         <Input
-                          id="name"
-                          placeholder="e.g., AI Ethics Deep Dive"
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          id="submitterName"
+                          placeholder="How should we credit you?"
+                          value={formData.submitterName}
+                          onChange={(e) => setFormData({ ...formData, submitterName: e.target.value })}
                           disabled={submitNotebook.isPending}
                         />
+                        <p className="text-xs text-muted-foreground">
+                          Leave blank to submit anonymously
+                        </p>
                       </div>
+                    )}
 
-                      {/* Description Field */}
-                      <div className="space-y-2">
-                        <Label htmlFor="description">
-                          Description ({formData.description.length}/250) *
-                        </Label>
-                        <Textarea
-                          id="description"
-                          placeholder="Describe your notebook in up to 250 characters..."
-                          value={formData.description}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              description: e.target.value.slice(0, 250),
-                            })
+                    {/* Legal Disclaimer */}
+                    <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">
+                      <p className="text-sm font-medium text-foreground">Legal Notice</p>
+                      <p className="text-sm text-muted-foreground">
+                        By submitting, you confirm that your notebook only includes materials you are legally
+                        allowed to use and share.
+                      </p>
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="legal"
+                          checked={formData.agreedToLegal}
+                          onCheckedChange={(checked) =>
+                            setFormData({ ...formData, agreedToLegal: checked as boolean })
                           }
                           disabled={submitNotebook.isPending}
-                          rows={4}
                         />
+                        <Label
+                          htmlFor="legal"
+                          className="text-sm cursor-pointer font-normal leading-relaxed"
+                        >
+                          I agree that I have the legal rights to share this content
+                        </Label>
                       </div>
+                    </div>
 
-                      {/* Link Field */}
-                      <div className="space-y-2">
-                        <Label htmlFor="link">Notebook Link *</Label>
-                        <Input
-                          id="link"
-                          type="url"
-                          placeholder="https://notebooklm.google.com/..."
-                          value={formData.link}
-                          onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                          disabled={submitNotebook.isPending}
-                        />
-                      </div>
-
-                      {/* Tags Field */}
-                      <div className="space-y-2">
-                        <Label htmlFor="tags">Tags</Label>
-                        <Input
-                          id="tags"
-                          placeholder="e.g., AI, Ethics, Research (comma-separated)"
-                          value={formData.tags}
-                          onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                          disabled={submitNotebook.isPending}
-                        />
-                      </div>
-
-                      {/* Legal Disclaimer */}
-                      <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">
-                        <p className="text-sm font-medium text-foreground">Legal Notice</p>
-                        <p className="text-sm text-muted-foreground">
-                          By submitting, you confirm that your notebook only includes materials you are legally
-                          allowed to use and share.
-                        </p>
-                        <div className="flex items-start gap-3">
-                          <Checkbox
-                            id="legal"
-                            checked={formData.agreedToLegal}
-                            onCheckedChange={(checked) =>
-                              setFormData({ ...formData, agreedToLegal: checked as boolean })
-                            }
-                            disabled={submitNotebook.isPending}
-                          />
-                          <Label
-                            htmlFor="legal"
-                            className="text-sm cursor-pointer font-normal leading-relaxed"
-                          >
-                            I agree that I have the legal rights to share this content
-                          </Label>
-                        </div>
-                      </div>
-
-                      {/* Submit Button */}
-                      <Button
-                        type="submit"
-                        className="w-full gap-2"
-                        disabled={submitNotebook.isPending}
-                      >
-                        {submitNotebook.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-                        {submitNotebook.isPending ? "Submitting..." : "Submit Notebook"}
-                      </Button>
-                    </form>
-                  )}
+                    {/* Submit Button */}
+                    <Button
+                      type="submit"
+                      className="w-full gap-2"
+                      disabled={submitNotebook.isPending}
+                    >
+                      {submitNotebook.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                      {submitNotebook.isPending ? "Submitting..." : "Submit Notebook"}
+                    </Button>
+                  </form>
                 </CardContent>
               </Card>
             </div>

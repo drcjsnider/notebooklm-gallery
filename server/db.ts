@@ -91,7 +91,7 @@ export async function getUserByOpenId(openId: string) {
 }
 
 export async function createNotebook(
-  userId: number,
+  userId: number | null,
   data: {
     name: string;
     description: string;

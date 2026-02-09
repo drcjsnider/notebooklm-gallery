@@ -8,6 +8,13 @@
       "when": 1770573270171,
       "tag": "0000_chief_hulk",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1770606797531,
+      "tag": "0001_dry_tomas",
+      "breakpoints": true
     }
   ]
 }

@@ -23,20 +23,17 @@ export const appRouter = router({
   }),
 
   notebooks: router({
-    submit: protectedProcedure
+    submit: publicProcedure
       .input(
         z.object({
           name: z.string().min(1, "Name is required"),
           description: z.string().min(1, "Description is required").max(250, "Description must be 250 characters or less"),
           link: z.string().url("Invalid URL"),
           tags: z.array(z.string()).default([]),
+          submitterName: z.string().optional().default("Anonymous"),
         })
       )
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.user) {
-          throw new TRPCError({ code: "UNAUTHORIZED" });
-        }
-
         try {
           // Scrape OG metadata from the link
           const { image: ogImage, metadata: ogMetadata } = await scrapeOpenGraph(input.link);
@@ -51,7 +48,10 @@ export const appRouter = router({
           // Combine user tags with suggested tags
           const allTags = Array.from(new Set([...input.tags, ...suggestedTags]));
 
-          const result = await createNotebook(ctx.user.id, {
+          // Use authenticated user ID if available, otherwise use null for public submissions
+          const userId = ctx.user?.id || null;
+
+          const result = await createNotebook(userId, {
             name: input.name,
             description: input.description,
             link: input.link,
@@ -63,9 +63,10 @@ export const appRouter = router({
           });
 
           // Send notification to owner
+          const submitterName = input.submitterName || ctx.user?.name || "Anonymous";
           await notifyNewNotebook(
             input.name,
-            ctx.user.name || "Anonymous",
+            submitterName,
             input.link,
             input.description
           );
