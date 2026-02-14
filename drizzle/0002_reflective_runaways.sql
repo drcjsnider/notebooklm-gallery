@@ -1,0 +1,1 @@
+ALTER TABLE `notebooks` MODIFY COLUMN `userId` int;
