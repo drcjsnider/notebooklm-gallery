@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Search, ExternalLink, Flag } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { BookOpen, Search, ExternalLink, Flag, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Loader2 } from "lucide-react";
 import { ReportDialog } from "@/components/ReportDialog";
@@ -12,6 +14,7 @@ export default function Gallery() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [reportingNotebookId, setReportingNotebookId] = useState<number | null>(null);
+  const [selectedNotebook, setSelectedNotebook] = useState<any | null>(null);
 
   // Fetch all notebooks
   const { data: notebooks = [], isLoading } = trpc.notebooks.list.useQuery();
@@ -130,6 +133,7 @@ export default function Gallery() {
                   key={notebook.id}
                   notebook={notebook}
                   onReport={() => setReportingNotebookId(notebook.id)}
+                  onViewDetails={() => setSelectedNotebook(notebook)}
                 />
               ))}
             </div>
@@ -144,6 +148,80 @@ export default function Gallery() {
           onClose={() => setReportingNotebookId(null)}
         />
       )}
+
+      {/* Details Modal */}
+      <Dialog open={!!selectedNotebook} onOpenChange={(open) => !open && setSelectedNotebook(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          {selectedNotebook && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center justify-between">
+                  <DialogTitle>{selectedNotebook.name}</DialogTitle>
+                  <DialogClose asChild>
+                    <Button variant="ghost" size="sm">
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </DialogClose>
+                </div>
+              </DialogHeader>
+
+              {/* OG Image */}
+              {selectedNotebook.ogImage && (
+                <div className="relative h-64 bg-muted overflow-hidden rounded-lg">
+                  <img
+                    src={selectedNotebook.ogImage}
+                    alt={selectedNotebook.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Details */}
+              <div className="space-y-4">
+                {/* Tags */}
+                {Array.isArray(selectedNotebook.tags) && selectedNotebook.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedNotebook.tags.map((tag: string) => (
+                      <Badge key={tag} variant="secondary">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
+                {/* Description */}
+                <div>
+                  <h3 className="font-semibold mb-2">Description</h3>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedNotebook.description}</p>
+                </div>
+
+                {/* Enhanced Description */}
+                {selectedNotebook.enhancedDescription && (
+                  <div>
+                    <h3 className="font-semibold mb-2">Enhanced Summary</h3>
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedNotebook.enhancedDescription}</p>
+                  </div>
+                )}
+
+                {/* Link */}
+                {selectedNotebook.link && (
+                  <div>
+                    <Button asChild className="w-full">
+                      <a href={selectedNotebook.link} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Open Notebook
+                      </a>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -151,11 +229,12 @@ export default function Gallery() {
 interface NotebookCardProps {
   notebook: any;
   onReport: () => void;
+  onViewDetails: () => void;
 }
 
-function NotebookCard({ notebook, onReport }: NotebookCardProps) {
+function NotebookCard({ notebook, onReport, onViewDetails }: NotebookCardProps) {
   return (
-    <Card className="flex flex-col h-full hover:shadow-lg transition-shadow">
+    <Card className="flex flex-col h-full hover:shadow-lg transition-shadow cursor-pointer" onClick={onViewDetails}>
       {/* OG Image */}
       {notebook.ogImage && (
         <div className="relative h-48 bg-muted overflow-hidden rounded-t-lg">
@@ -173,14 +252,22 @@ function NotebookCard({ notebook, onReport }: NotebookCardProps) {
       <CardHeader className="flex-1">
         <div className="flex items-start justify-between gap-2 mb-2">
           <CardTitle className="text-lg line-clamp-2">{notebook.name}</CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground hover:text-destructive"
-            onClick={onReport}
-          >
-            <Flag className="h-4 w-4" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReport();
+                }}
+              >
+                <Flag className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Report problems with this site</TooltipContent>
+          </Tooltip>
         </div>
         <CardDescription className="line-clamp-3">
           {notebook.enhancedDescription || notebook.description}
@@ -209,6 +296,7 @@ function NotebookCard({ notebook, onReport }: NotebookCardProps) {
           asChild
           className="w-full gap-2"
           variant="default"
+          onClick={(e) => e.stopPropagation()}
         >
           <a href={notebook.link} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="h-4 w-4" />

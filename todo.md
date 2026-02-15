@@ -57,3 +57,7 @@
 - [x] Update submission form UI for public access
 - [x] Add optional submitter name field
 - [x] Test public submission flow
+
+## UI/UX Improvements
+- [x] Add tooltip to report button that says "Report problems with this site"
+- [x] Add modal for detailed notebook view with full description and all information
