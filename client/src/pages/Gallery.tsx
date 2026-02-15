@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { BookOpen, Search, ExternalLink, Flag, X } from "lucide-react";
+import { BookOpen, Search, ExternalLink, Flag } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Loader2 } from "lucide-react";
 import { ReportDialog } from "@/components/ReportDialog";
@@ -155,14 +155,7 @@ export default function Gallery() {
           {selectedNotebook && (
             <>
               <DialogHeader>
-                <div className="flex items-center justify-between">
-                  <DialogTitle>{selectedNotebook.name}</DialogTitle>
-                  <DialogClose asChild>
-                    <Button variant="ghost" size="sm">
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </DialogClose>
-                </div>
+                <DialogTitle>{selectedNotebook.name}</DialogTitle>
               </DialogHeader>
 
               {/* OG Image */}
