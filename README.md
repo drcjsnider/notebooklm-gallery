@@ -43,7 +43,8 @@ Deploy the project to Vercel and add the same environment variables there. Supab
 ## Behavior Notes
 
 - Submissions publish automatically when the server can validate the NotebookLM link format and complete a basic server-side reachability check.
-- Failed submissions return clear inline errors for malformed links, non-public notebooks, invalid email addresses, missing legal confirmation, and overlong descriptions.
+- Failed submissions return clear inline errors for malformed links, non-public notebooks, invalid email addresses, missing legal confirmation, and descriptions longer than 75 words.
 - If OG metadata cannot be fetched, the notebook still publishes as long as the public visibility check passes.
 - When Supabase is not configured, the homepage falls back to sample notebook cards so the UI can still be previewed.
+
 

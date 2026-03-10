@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useDeferredValue, useMemo, useState } from "react";
 
 import type { Notebook } from "@/lib/types";
@@ -88,20 +87,6 @@ export function NotebookGallery({
           <div className="gallery-grid">
             {filteredNotebooks.map((notebook) => (
               <article className="gallery-card" key={notebook.id}>
-                <div className="card-image">
-                  {notebook.ogImageUrl ? (
-                    <Image
-                      src={notebook.ogImageUrl}
-                      alt={`${notebook.notebookName} preview`}
-                      width={800}
-                      height={500}
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="card-image-fallback">NotebookLM Preview</div>
-                  )}
-                </div>
-
                 <div className="card-body">
                   <div className="card-heading">
                     <h3>{notebook.notebookName}</h3>

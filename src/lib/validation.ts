@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import type { SubmissionErrors, SubmissionPayload } from "@/lib/types";
 
-export const MAX_DESCRIPTION_WORDS = 250;
+export const MAX_DESCRIPTION_WORDS = 75;
 
 export function countWords(value: string) {
   return value.trim().split(/\s+/).filter(Boolean).length;
@@ -73,3 +73,4 @@ export function mapValidationErrors(
     legalConfirmed: flattened.legalConfirmed?.[0],
   };
 }
+
