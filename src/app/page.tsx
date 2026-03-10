@@ -1,4 +1,5 @@
-import { NotebookGallery } from "@/components/notebook-gallery";
+import Link from "next/link";
+
 import { SubmissionForm } from "@/components/submission-form";
 import { getApprovedNotebooks, isLiveDataEnabled } from "@/lib/notebooks";
 
@@ -10,14 +11,26 @@ export default async function Home() {
 
   return (
     <main className="page-shell">
+      <nav className="top-nav" aria-label="Primary">
+        <Link className="nav-brand" href="/">
+          NotebookLM Gallery
+        </Link>
+        <div className="nav-links">
+          <Link href="/browse">Browse notebooks</Link>
+          <a href="#submit">Submit notebook</a>
+        </div>
+      </nav>
+
       <section className="hero">
         <div className="hero-copy">
           <span className="eyebrow">NotebookLM Gallery</span>
-          <h1>A public library for the best shared NotebookLM notebooks.</h1>
+          <h1 className="hero-title-small">
+            A public library for the best shared NotebookLM links.
+          </h1>
           <p className="hero-lead">
-            A community-curated collection of shared NotebookLM notebooks.
-            Discover deep dives, audio overviews, and structured insights from
-            creators around the world.
+            A community-curated collection of shared NLM notebooks. Discover
+            deep dives, audio overviews, and structured insights from creators
+            around the world.
           </p>
           <div className="hero-metrics" aria-label="Gallery highlights">
             <div>
@@ -25,13 +38,21 @@ export default async function Home() {
               <span>public notebooks</span>
             </div>
             <div>
-              <strong>Instant</strong>
-              <span>search by name and tag</span>
+              <strong>Search</strong>
+              <span>for notebooks</span>
             </div>
             <div>
               <strong>Community</strong>
-              <span>reporting and review</span>
+              <span>add a link to a shared notebook</span>
             </div>
+          </div>
+          <div className="hero-actions">
+            <Link className="button-primary" href="/browse">
+              Browse notebooks
+            </Link>
+            <a className="button-secondary" href="#submit">
+              Submit a notebook
+            </a>
           </div>
         </div>
 
@@ -40,13 +61,12 @@ export default async function Home() {
           <p>
             NotebookLM Gallery makes it easier to surface excellent public
             notebooks instead of losing them in chats, bookmarks, and social
-            feeds. Each card highlights the notebook itself alongside its
-            shared context, making discovery feel more like browsing a research
-            collection than a link dump.
+            feeds. Each listing is designed to feel more like browsing a
+            research collection than a link dump.
           </p>
-          <a className="panel-link" href="#submit">
-            Submit a public notebook
-          </a>
+          <Link className="panel-link" href="/browse">
+            Explore shared notebooks
+          </Link>
         </aside>
       </section>
 
@@ -65,28 +85,12 @@ export default async function Home() {
           <span className="section-kicker">Submit</span>
           <h2>Share a notebook that anyone can open.</h2>
           <p>
-            We run a server-side NotebookLM link check before publishing
-            before publishing it in the gallery.
+            We run a server-side NotebookLM link check before publishing it in
+            the gallery.
           </p>
         </div>
         <SubmissionForm enabled={liveDataEnabled} />
       </section>
-
-      <section className="section-grid gallery-section">
-        <div className="section-heading">
-          <span className="section-kicker">Explore</span>
-          <h2>Search the community gallery.</h2>
-          <p>
-            Browse approved public notebooks by topic, creator focus, or
-            research format.
-          </p>
-        </div>
-        <NotebookGallery
-          notebooks={notebooks}
-          reportingEnabled={liveDataEnabled}
-        />
-      </section>
     </main>
   );
 }
-
