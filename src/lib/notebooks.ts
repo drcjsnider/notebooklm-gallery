@@ -168,23 +168,8 @@ export async function verifyNotebookVisibility(link: string) {
     };
   }
 
-  const finalUrl = response.url;
-  const lowerUrl = finalUrl.toLowerCase();
-
-  if (
-    lowerUrl.includes("accounts.google.com") ||
-    lowerUrl.includes("servicelogin")
-  ) {
-    return {
-      ok: false,
-      message:
-        "This link redirects to Google sign-in, so it is not publicly viewable.",
-    };
-  }
-
   const html = (await response.text()).toLowerCase();
   const blockedMarkers = [
-    "sign in",
     "request access",
     "you need access",
     "permission denied",
@@ -241,4 +226,5 @@ async function scrapeOpenGraph(link: string) {
     };
   }
 }
+
 

@@ -65,7 +65,7 @@ export default async function Home() {
           <span className="section-kicker">Submit</span>
           <h2>Share a notebook that anyone can open.</h2>
           <p>
-            We automatically verify that the submitted NotebookLM link is public
+            We run a server-side NotebookLM link check before publishing
             before publishing it in the gallery.
           </p>
         </div>
@@ -89,3 +89,4 @@ export default async function Home() {
     </main>
   );
 }
+
