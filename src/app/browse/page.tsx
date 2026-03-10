@@ -21,16 +21,6 @@ export default async function BrowsePage() {
         </div>
       </nav>
 
-      <section className="browse-hero">
-        <span className="section-kicker">Browse notebooks</span>
-        <h1>Search and explore shared NotebookLM notebooks.</h1>
-        <p>
-          Search by notebook name or tag, open a shared notebook, and report
-          anything that needs review. Use the navigation above to return to the
-          home page at any time.
-        </p>
-      </section>
-
       {!liveDataEnabled ? (
         <section className="setup-banner" aria-label="Setup notice">
           <p>

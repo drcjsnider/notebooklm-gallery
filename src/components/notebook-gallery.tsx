@@ -73,7 +73,7 @@ export function NotebookGallery({
           <div>
             <h3>Browse notebooks</h3>
             <p className="helper-text">
-              Filter instantly by notebook title or by tags like `audio`,
+              Search by notebook title or by tags like `audio`,
               `policy`, or `markets`.
             </p>
           </div>
@@ -103,52 +103,53 @@ export function NotebookGallery({
           <div className="gallery-grid">
             {filteredNotebooks.map((notebook) => (
               <article className="gallery-card" key={notebook.id}>
-                <div className="card-body">
-                  <div className="card-heading">
-                    <button
-                      className="card-title-button"
-                      type="button"
-                      onClick={() =>
-                        setDetailsState({
-                          open: true,
-                          notebook,
-                        })
-                      }
-                    >
-                      {notebook.notebookName}
-                    </button>
-                    <div className="tag-row">
-                      {notebook.tags.map((tag) => (
-                        <span className="tag-pill" key={`${notebook.id}-${tag}`}>
-                          {tag}
-                        </span>
-                      ))}
+                <div
+                  className="card-body"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() =>
+                    setDetailsState({
+                      open: true,
+                      notebook,
+                    })
+                  }
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setDetailsState({
+                        open: true,
+                        notebook,
+                      });
+                    }
+                  }}
+                >
+                  <div className="card-summary">
+                    <div className="card-heading">
+                      <h3 className="card-title-text">{notebook.notebookName}</h3>
+                      <div className="tag-row">
+                        {notebook.tags.map((tag) => (
+                          <span className="tag-pill" key={`${notebook.id}-${tag}`}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
                     </div>
+
+                    <p className="card-description">
+                      {truncate(notebook.description, 164)}
+                    </p>
+
+                    <p className="meta-text">
+                      {notebook.ogDescription
+                        ? truncate(notebook.ogDescription, 130)
+                        : "Open the notebook to explore the full source set and NotebookLM output."}
+                    </p>
                   </div>
 
-                  <p className="card-description">
-                    {truncate(notebook.description, 164)}
-                  </p>
-
-                  <p className="meta-text">
-                    {notebook.ogDescription
-                      ? truncate(notebook.ogDescription, 130)
-                      : "Open the notebook to explore the full source set and NotebookLM output."}
-                  </p>
-
-                  <div className="card-actions">
-                    <button
-                      className="button-secondary"
-                      type="button"
-                      onClick={() =>
-                        setDetailsState({
-                          open: true,
-                          notebook,
-                        })
-                      }
-                    >
-                      Read description
-                    </button>
+                  <div
+                    className="card-actions"
+                    onClick={(event) => event.stopPropagation()}
+                  >
                     <a
                       className="card-link"
                       href={notebook.link}
@@ -352,3 +353,4 @@ function truncate(value: string, maxLength: number) {
 
   return `${value.slice(0, maxLength - 1).trimEnd()}...`;
 }
+
