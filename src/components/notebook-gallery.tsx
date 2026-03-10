@@ -16,10 +16,25 @@ type ReportState =
       notebookName: string;
     };
 
+type DetailsState =
+  | {
+      open: false;
+      notebook: null;
+    }
+  | {
+      open: true;
+      notebook: Notebook;
+    };
+
 const initialReportState: ReportState = {
   open: false,
   notebookId: null,
   notebookName: null,
+};
+
+const initialDetailsState: DetailsState = {
+  open: false,
+  notebook: null,
 };
 
 export function NotebookGallery({
@@ -31,6 +46,7 @@ export function NotebookGallery({
 }) {
   const [query, setQuery] = useState("");
   const [reportState, setReportState] = useState<ReportState>(initialReportState);
+  const [detailsState, setDetailsState] = useState<DetailsState>(initialDetailsState);
   const deferredQuery = useDeferredValue(query);
 
   const filteredNotebooks = useMemo(() => {
@@ -89,7 +105,18 @@ export function NotebookGallery({
               <article className="gallery-card" key={notebook.id}>
                 <div className="card-body">
                   <div className="card-heading">
-                    <h3>{notebook.notebookName}</h3>
+                    <button
+                      className="card-title-button"
+                      type="button"
+                      onClick={() =>
+                        setDetailsState({
+                          open: true,
+                          notebook,
+                        })
+                      }
+                    >
+                      {notebook.notebookName}
+                    </button>
                     <div className="tag-row">
                       {notebook.tags.map((tag) => (
                         <span className="tag-pill" key={`${notebook.id}-${tag}`}>
@@ -110,6 +137,18 @@ export function NotebookGallery({
                   </p>
 
                   <div className="card-actions">
+                    <button
+                      className="button-secondary"
+                      type="button"
+                      onClick={() =>
+                        setDetailsState({
+                          open: true,
+                          notebook,
+                        })
+                      }
+                    >
+                      Read description
+                    </button>
                     <a
                       className="card-link"
                       href={notebook.link}
@@ -140,6 +179,13 @@ export function NotebookGallery({
         )}
       </div>
 
+      {detailsState.open ? (
+        <DetailsModal
+          notebook={detailsState.notebook}
+          onClose={() => setDetailsState(initialDetailsState)}
+        />
+      ) : null}
+
       {reportState.open ? (
         <ReportModal
           notebookId={reportState.notebookId}
@@ -148,6 +194,48 @@ export function NotebookGallery({
         />
       ) : null}
     </>
+  );
+}
+
+function DetailsModal({
+  notebook,
+  onClose,
+}: {
+  notebook: Notebook;
+  onClose: () => void;
+}) {
+  return (
+    <div className="modal-backdrop" role="presentation">
+      <div
+        className="modal-card details-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="details-title"
+      >
+        <h3 id="details-title">{notebook.notebookName}</h3>
+        <div className="tag-row">
+          {notebook.tags.map((tag) => (
+            <span className="tag-pill" key={`${notebook.id}-details-${tag}`}>
+              {tag}
+            </span>
+          ))}
+        </div>
+        <p className="details-copy">{notebook.description}</p>
+        <div className="modal-actions">
+          <a
+            className="button-primary"
+            href={notebook.link}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open notebook
+          </a>
+          <button className="button-secondary" type="button" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -1,12 +1,11 @@
 import Link from "next/link";
 
 import { SubmissionForm } from "@/components/submission-form";
-import { getApprovedNotebooks, isLiveDataEnabled } from "@/lib/notebooks";
+import { isLiveDataEnabled } from "@/lib/notebooks";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const notebooks = await getApprovedNotebooks();
   const liveDataEnabled = isLiveDataEnabled();
 
   return (
@@ -32,20 +31,6 @@ export default async function Home() {
             deep dives, audio overviews, and structured insights from creators
             around the world.
           </p>
-          <div className="hero-metrics" aria-label="Gallery highlights">
-            <div>
-              <strong>{notebooks.length}</strong>
-              <span>public notebooks</span>
-            </div>
-            <div>
-              <strong>Search</strong>
-              <span>for notebooks</span>
-            </div>
-            <div>
-              <strong>Community</strong>
-              <span>add a link to a shared notebook</span>
-            </div>
-          </div>
           <div className="hero-actions">
             <Link className="button-primary" href="/browse">
               Browse notebooks
