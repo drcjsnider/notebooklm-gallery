@@ -66,6 +66,11 @@ export function NotebookGallery({
     });
   }, [deferredQuery, notebooks]);
 
+  function applyTagFilter(tag: string) {
+    setQuery(tag);
+    setDetailsState(initialDetailsState);
+  }
+
   return (
     <>
       <div className="search-panel">
@@ -87,7 +92,6 @@ export function NotebookGallery({
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
-
 
         {filteredNotebooks.length === 0 ? (
           <div className="empty-state">
@@ -123,9 +127,17 @@ export function NotebookGallery({
                       <h3 className="card-title-text">{notebook.notebookName}</h3>
                       <div className="tag-row">
                         {notebook.tags.map((tag) => (
-                          <span className="tag-pill" key={`${notebook.id}-${tag}`}>
+                          <button
+                            className="tag-pill tag-button"
+                            key={`${notebook.id}-${tag}`}
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              applyTagFilter(tag);
+                            }}
+                          >
                             {tag}
-                          </span>
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -179,6 +191,7 @@ export function NotebookGallery({
         <DetailsModal
           notebook={detailsState.notebook}
           onClose={() => setDetailsState(initialDetailsState)}
+          onTagClick={applyTagFilter}
         />
       ) : null}
 
@@ -196,9 +209,11 @@ export function NotebookGallery({
 function DetailsModal({
   notebook,
   onClose,
+  onTagClick,
 }: {
   notebook: Notebook;
   onClose: () => void;
+  onTagClick: (tag: string) => void;
 }) {
   return (
     <div className="modal-backdrop" role="presentation">
@@ -211,9 +226,14 @@ function DetailsModal({
         <h3 id="details-title">{notebook.notebookName}</h3>
         <div className="tag-row">
           {notebook.tags.map((tag) => (
-            <span className="tag-pill" key={`${notebook.id}-details-${tag}`}>
+            <button
+              className="tag-pill tag-button"
+              key={`${notebook.id}-details-${tag}`}
+              type="button"
+              onClick={() => onTagClick(tag)}
+            >
               {tag}
-            </span>
+            </button>
           ))}
         </div>
         <p className="details-copy">{notebook.description}</p>
@@ -348,5 +368,3 @@ function truncate(value: string, maxLength: number) {
 
   return `${value.slice(0, maxLength - 1).trimEnd()}...`;
 }
-
-
