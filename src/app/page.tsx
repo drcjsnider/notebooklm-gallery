@@ -69,13 +69,10 @@ export default async function Home() {
         <div className="section-heading">
           <span className="section-kicker">Submit</span>
           <h2>Share a notebook that anyone can open.</h2>
-          <p>
-            We run a server-side NotebookLM link check before publishing it in
-            the gallery.
-          </p>
         </div>
         <SubmissionForm enabled={liveDataEnabled} />
       </section>
     </main>
   );
 }
+

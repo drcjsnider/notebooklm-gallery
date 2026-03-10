@@ -205,10 +205,6 @@ export function SubmissionForm({ enabled }: { enabled: boolean }) {
         <button className="button-primary" disabled={!enabled || isPending}>
           {isPending ? "Checking visibility..." : "Submit notebook"}
         </button>
-        <p className="submit-note">
-          Public notebooks publish automatically after the link passes the
-          server-side access check.
-        </p>
       </div>
 
       {!enabled ? (
@@ -228,4 +224,5 @@ export function SubmissionForm({ enabled }: { enabled: boolean }) {
     </form>
   );
 }
+
 
