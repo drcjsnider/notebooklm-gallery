@@ -88,11 +88,6 @@ export function NotebookGallery({
           onChange={(event) => setQuery(event.target.value)}
         />
 
-        <div className="search-meta">
-          <span>Live search</span>
-          <span>Approved public notebooks only</span>
-          <span>Community reporting enabled</span>
-        </div>
 
         {filteredNotebooks.length === 0 ? (
           <div className="empty-state">
@@ -353,4 +348,5 @@ function truncate(value: string, maxLength: number) {
 
   return `${value.slice(0, maxLength - 1).trimEnd()}...`;
 }
+
 
